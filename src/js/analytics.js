@@ -10,6 +10,19 @@
 
 	function setup() {
 		$Body = Formstone.$body;
+		// Window.dataLayer = Window.dataLayer || [];
+	}
+
+	/**
+	 * @method private
+	 * @name setup
+	 * @description Setup plugin.
+	 */
+
+	function resize() {
+		if (Defaults.scrollDepth) {
+			setScrollDepths();
+		}
 	}
 
 	/**
@@ -19,7 +32,11 @@
 
 	function delegate() {
 		if (arguments.length && $.type(arguments[0]) !== "object") {
-			pushEvent.apply(this, arguments);
+			if (arguments[0] === "destroy") {
+				destroy.apply(this);
+			} else {
+				pushEvent.apply(this, arguments);
+			}
 		} else {
 			init.apply(this, arguments);
 		}
@@ -35,15 +52,39 @@
 	 */
 
 	function init(options) {
-		// Attach Scout events
+		// Attach Analytics events
 		if (!Initialized && $Body.length) {
 			Initialized = true;
 
+			GUA = ($.type(Window.ga) === "function");
+			GTM = ($.type(Window.dataLayer) !== "undefined" && $.type(Window.dataLayer.push) === "function");
+
 			Defaults = $.extend(Defaults, options || {});
 
-			// $Body.find("a").not("[" + DataKeyFull + "]").each(buildEvent);
+			if (Defaults.autoEvents) {
+				$Body.find("a").not("[" + DataKeyFull + "]").each(buildEvent);
+			}
 
-			$Body.on("click.scout", "*[" + DataKeyFull + "]", trackEvent);
+			if (Defaults.scrollDepth) {
+				setScrollDepths();
+				$Window.on(Events.scroll, trackScroll);
+				$Window.one(Events.load, resize);
+			}
+
+			$Body.on(Events.click, "*[" + DataKeyFull + "]", trackEvent);
+		}
+	}
+
+	/**
+	 * @method private
+	 * @name destroy
+	 * @description Destroys plugin
+	 */
+
+	function destroy() {
+		if (Initialized && $Body.length) {
+			$Window.off(Events.namespace);
+			$Body.off(Events.namespace);
 		}
 	}
 
@@ -53,34 +94,104 @@
 	 * @description Build events for email, phone, file types & external links
 	 */
 
-/*
 	function buildEvent() {
-		var $target = $(this),
-			href = ($.type($target[0].href) !== "undefined") ? $target[0].href : "",
-			domain = document.domain.split(".").reverse(),
-			internal = href.match(domain[1] + "." + domain[0]) !== null,
-			eventData;
+		if (Defaults.autoEvents) {
+			var $target = $(this),
+				href = ($.type($target[0].href) !== "undefined") ? $target[0].href : "",
+				domain = document.domain.split(".").reverse(),
+				internal = href.match(domain[1] + "." + domain[0]) !== null,
+				eventData;
 
-		if (href.match(/^mailto\:/i)) {
-			// Email
-			eventData = "Email, Click, " + href.replace(/^mailto\:/i, "");
-		} else if (href.match(/^tel\:/i)) {
-			// Action
-			eventData = "Telephone, Click, " + href.replace(/^tel\:/i, "");
-		} else if (href.match(Defaults.filetypes)) {
-			// Files
-			var extension = (/[.]/.exec(href)) ? /[^.]+$/.exec(href) : undefined;
-			eventData = "File, Download:" + extension[0] + ", " + href.replace(/ /g,"-");
-		} else if (!internal) {
-			// External Link
-			eventData = "ExternalLink, Click, " + href;
-		}
+			if (href.match(/^mailto\:/i)) {
+				// Email
+				eventData = "Email, Click, " + href.replace(/^mailto\:/i, "");
+			} else if (href.match(/^tel\:/i)) {
+				// Action
+				eventData = "Telephone, Click, " + href.replace(/^tel\:/i, "");
+			} else if (href.match(Defaults.filetypes)) {
+				// Files
+				var extension = (/[.]/.exec(href)) ? /[^.]+$/.exec(href) : undefined;
+				eventData = "File, Download:" + extension[0] + ", " + href.replace(/ /g,"-");
+			} else if (!internal) {
+				// External Link
+				eventData = "ExternalLink, Click, " + href;
+			}
 
-		if (eventData) {
-			$target.attr(DataKeyFull, eventData);
+			if (eventData) {
+				$target.attr(DataKeyFull, eventData);
+			}
 		}
 	}
-*/
+
+	/**
+	 * @method private
+	 * @name trackScroll
+	 * @description Debounces scroll tracking
+	 */
+
+	function trackScroll(e) {
+		Functions.startTimer(ScrollTimer, 250, doTrackScroll);
+	}
+
+	/**
+	 * @method private
+	 * @name doTrackScroll
+	 * @description Handle scroll tracking
+	 */
+
+	function doTrackScroll() {
+		var scrollTop = Formstone.$window.scrollTop() + Formstone.windowHeight,
+			step      = (1 / Defaults.scrollStops),
+			depth     = step,
+			key;
+
+		for (var i = 1; i <= Defaults.scrollStops; i++) {
+			key = ( Math.round(100 * depth) ).toString();
+
+			if (!ScrollDepths[ ScrollWidth ][ key ].passed && scrollTop > ScrollDepths[ ScrollWidth ][ key ].edge) {
+				ScrollDepths[ ScrollWidth ][ key ].passed = true;
+
+				// Push data
+				pushEvent('ScrollDepth', ScrollWidth, key);
+			}
+
+			depth += step;
+		}
+	}
+
+	/**
+	 * @method private
+	 * @name setScrollDepths
+	 * @description Sets scroll depths at specific widths
+	 */
+
+	function setScrollDepths() {
+		var mqState    = $.mediaquery('state'),
+			bodyHeight = $Body.outerHeight(),
+			newDepths  = {},
+			step       = (1 / Defaults.scrollStops),
+			depth      = step,
+			top        = 0,
+			key;
+
+		if (mqState.minWidth) {
+			ScrollWidth = 'MinWidth:' + mqState.minWidth + 'px';
+		}
+
+		for (var i = 1; i <= Defaults.scrollStops; i++) {
+			top = parseInt(bodyHeight * depth);
+			key = ( Math.round(100 * depth) ).toString();
+
+			newDepths[ key ] = {
+				edge       : ( key === '100' ) ? top - 10 : top,
+				passsed    : ( ScrollDepths[ ScrollWidth ] && ScrollDepths[ ScrollWidth ][ key ] ) ? ScrollDepths[ ScrollWidth ][ key ].passed : false
+			};
+
+			depth += step;
+		}
+
+		ScrollDepths[ ScrollWidth ] = newDepths;
+	}
 
 	/**
 	 * @method private
@@ -90,15 +201,16 @@
 	 */
 
 	function trackEvent(e) {
-		// Universal Analytics
-		if ($.type(Window.ga) === "function") {
-			e.preventDefault();
-
+		if (GUA || GTM) {
 			var $target = $(this),
 				url     = $target.attr("href"),
 				data    = $target.data(DataKey).split(",");
 
-			// Trim that data
+			if (Defaults.eventCallback) {
+				e.preventDefault();
+			}
+
+			// Trim data
 			for (var i in data) {
 				if (data.hasOwnProperty(i)) {
 					data[i] = $.trim(data[i]);
@@ -117,32 +229,20 @@
 	 */
 
 	function pushEvent(category, action, label, value, noninteraction, $target) {
-		// Universal Analytics
-		if ($.type(Window.ga) === "function") {
-
+		if (GUA || GTM) {
 			// https://developers.google.com/analytics/devguides/collection/analyticsjs/field-reference
-
 			var event = {
 				"hitType"     : "event",
 				"location"    : Window.location,
 				"title"       : Window.document.title
 			};
 
-			if (category) {
-				event["eventCategory"]  = category;
-			}
-			if (action) {
-				event["eventAction"]    = action;
-			}
-			if (label) {
-				event["eventLabel"]     = label;
-			}
-			if (value) {
-				event["eventValue"]     = value;
-			}
-			if (noninteraction) {
-				event["nonInteraction"] = noninteraction;
-			}
+			// http://www.simoahava.com/analytics/create-a-generic-event-tag/
+			event["eventCategory"]  = category || undefined;
+			event["eventAction"]    = action || undefined;
+			event["eventLabel"]     = label || undefined;
+			event["eventValue"]     = value || undefined;
+			event["nonInteraction"] = noninteraction || undefined;
 
 			// If active link, launch that ish!
 			if ($.type($target) !== "undefined" && !$target.attr("data-analytics-stop")) {
@@ -153,51 +253,60 @@
 					// Check Window target
 					if ($target.attr("target")) {
 						Window.open(url, $target.attr("target"));
-					} else {
-						event["hitCallback"] = function() {
-							document.location = url;
+					} else if (Defaults.eventCallback) {
+						var callbackType = "hitCallback"; // GUA ? "hitCallback" : "eventCallback";
+
+						event[ callbackType ] = function() {
+							if (LinkTimer) {
+								Functions.clearTimer(LinkTimer);
+
+								openURL( url );
+							}
 						};
+
+						// Event timeout
+						LinkTimer = Functions.startTimer(LinkTimer, Defaults.eventTimeout, event[ callbackType ]);
 					}
 				}
 			}
 
-			Window.ga("send", event);
+			// if (GUA) {
+				// Push to all trackers, even if GTM active
+				var trackers = Window.ga.getAll();
 
-			/*
-			// May use when adding tag manager support
-			if (Defaults.tracking.manager) {
-				// Tag Manager
-				var page = {};
-				page[Defaults.tracking.variable] = url;
-				Window.dataLayer = Window.dataLayer || [];
-
-				// Push new url to varibale then tracking event
-				Window.dataLayer.push(page);
-				Window.dataLayer.push({
-					'event': Defaults.tracking.event
-				});
-			} else {
-				Window.ga("send", event);
-
-				// Specific tracker - only needed if using mutiple and/or tag manager
-				//var t = ga.getAll();
-				//ga(t[0].get('name')+'.send', 'pageview', '/mimeo/');
-			}
-			*/
+				for (var i = 0, count = trackers.length; i < count; i++) {
+					Window.ga( trackers[i].get("name") + ".send", event);
+				}
+			// } else if (GTM) {
+			// 	event["event"] = "gaTriggerEvent";
+			// 	Window.dataLayer.push(event);
+			// }
 		}
+	}
+
+	/**
+	 * @method private
+	 * @name openURL
+	 * @description Launch a url
+	 */
+	function openURL(url) {
+		document.location = url;
 	}
 
 	/**
 	 * @plugin
 	 * @name Analytics
-	 * @description A jQuery plugin for Google Analytics Events.
+	 * @description A jQuery plugin for Google Universal Analytics Events.
 	 * @type utility
+	 * @dependency jQuery
 	 * @dependency core.js
+	 * @dependency mediaquery.js
 	 */
 
 	var Plugin = Formstone.Plugin("analytics", {
 			methods: {
-				_setup       : setup
+				_setup       : setup,
+				_resize      : resize
 			},
 			utilities: {
 				_delegate    : delegate
@@ -206,30 +315,46 @@
 
 		/**
 		 * @options
+		 * @param autoEvents [boolean] <false> "Flag to bind auto-events to mailto, tel, files and external links"
+		 * @param fileTypes [regex] <> "File types for binding auto-events"
+		 * @param eventCallback [boolean] <false> "Flag to use event callbacks when navigating"
+		 * @param eventTimeout [int] <1000> "Event failure timeout"
+		 * @param scrollDepth [boolean] <false> "Flag to track scroll depth events"
+		 * @param scrollStops [int] <5> "Number of scroll increments to track"
+		 * @param trackerName [string] <'gaTracker'> "Custom tracker name"
 		 */
 
 		Defaults = {
-			filetypes: /\.(zip|exe|dmg|pdf|doc.*|xls.*|ppt.*|mp3|txt|rar|wma|mov|avi|wmv|flv|wav)$/i
-			/*
-			// May use when adding tag manager support
-			tracking: {
-				legacy: false, // Use legacy ga code
-				manager: false, // Use tag manager events
-				variable: 'currentURL', // data layer variable name - macro in tag manager
-				event: 'PageView' // event name - rule in tag manager
-			}
-			*/
+			autoEvents     : false,
+			filetypes      : /\.(zip|exe|dmg|pdf|doc.*|xls.*|ppt.*|mp3|txt|rar|wma|mov|avi|wmv|flv|wav)$/i,
+			eventCallback  : false,
+			eventTimeout   : 1000,
+			scrollDepth    : false,
+			scrollStops    : 5,
+			trackerName    : "all"
 		},
 
 		// Localize References
 
-		Window      = Formstone.window,
-		$Body       = null,
+		Window       = Formstone.window,
+		$Window      = Formstone.$window,
+		$Body        = null,
+
+		Functions    = Plugin.functions,
+		Events       = Plugin.events,
 
 		// Internal
 
-		Initialized = false,
-		DataKey     = "analytics-event",
-		DataKeyFull = "data-" + DataKey;
+		Initialized  = false,
+		DataKey      = "analytics-event",
+		DataKeyFull  = "data-" + DataKey,
+
+		ScrollDepths = {},
+		ScrollTimer  = null,
+		ScrollWidth  = 'Site',
+		LinkTimer    = null,
+
+		GUA = false,
+		GTM = false;
 
 })(jQuery, Formstone);

@@ -413,9 +413,9 @@
 				Window.dataLayer.push({ "event": Instance.tracking.event });
 			} else {
 				// Basic
-				// if ($.type(ga) !== "undefined") {
-				// 	ga("send", "pageview", url);
-				// }
+				if ($.type(Window.ga) !== "undefined") {
+					Window.ga("send", "pageview", url);
+				}
 
 				// Specific tracker - only needed if using mutiple and/or tag manager
 				// var t = ga.getAll();
@@ -449,6 +449,7 @@
 	 * @name ASAP
 	 * @description A jQuery plugin for asynchronous page loads.
 	 * @type utility
+	 * @dependency jQuery
 	 * @dependency core.js
 	 */
 

@@ -70,13 +70,13 @@
 		// toggle
 
 		data.$handle.attr("data-swap-target", data.dotGuid)
-					.attr("data-swap-linked", "." + data.handleGuid)
+					.attr("data-swap-linked", data.handleGuid)
 					.attr("data-swap-group", RawClasses.base)
 					.on("activate.swap" + data.dotGuid, data, onOpen)
 					.on("deactivate.swap" + data.dotGuid, data, onClose)
 					.on("enable.swap" + data.dotGuid, data, onEnable)
 					.on("disable.swap" + data.dotGuid, data, onDisable)
-					.swap({
+					.fsSwap({
 						maxWidth: data.maxWidth,
 						classes: {
 							target  : data.dotGuid,
@@ -109,7 +109,7 @@
 					.removeClass(data.handleClasses)
 					.off(data.dotGuid)
 					.text(data.originalLabel)
-					.swap("destroy");
+					.fsSwap("destroy");
 
 		restoreLabel(data);
 
@@ -127,7 +127,7 @@
 	 */
 
 	function open(data) {
-		data.$handle.swap("activate");
+		data.$handle.fsSwap("activate");
 	}
 
 	/**
@@ -138,7 +138,7 @@
 	 */
 
 	function close(data) {
-		data.$handle.swap("deactivate");
+		data.$handle.fsSwap("deactivate");
 	}
 
 	/**
@@ -149,7 +149,7 @@
 	 */
 
 	function enable(data) {
-		data.$handle.swap("enable");
+		data.$handle.fsSwap("enable");
 	}
 
 	/**
@@ -160,7 +160,7 @@
 	 */
 
 	function disable(data) {
-		data.$handle.swap("disable");
+		data.$handle.fsSwap("disable");
 	}
 
 	/**
@@ -331,6 +331,7 @@
 	 * @name Navigation
 	 * @description A jQuery plugin for simple responsive navigation.
 	 * @type widget
+	 * @dependency jQuery
 	 * @dependency core.js
 	 * @dependency mediaquery.js
 	 * @dependency swap.js

@@ -94,6 +94,7 @@
 		data.$placeholder     = data.$dropdown.find(Classes.placeholder);
 		data.index            = -1;
 		data.closed           = true;
+		data.focused          = false;
 
 		buildOptions(data);
 
@@ -109,7 +110,7 @@
 		*/
 
 		// Bind events
-		data.$selected.touch({
+		data.$selected.fsTouch({
 			tap: true
 		}).on(Events.tap, data, onClick);
 
@@ -121,12 +122,12 @@
 
 		// Focus/Blur events
 		if (!Formstone.isMobile) {
-			data.$dropdown.on(Events.focus, data, onFocus)
-						  .on(Events.blur, data, onBlur);
+			data.$dropdown.on(Events.focusIn, data, onFocusIn)
+						  .on(Events.focusOut, data, onFocusOut);
 
 			// Handle clicks to associated labels
-			this.on(Events.focus, data, function(e) {
-				e.data.$dropdown.trigger(Events.raw.focus);
+			this.on(Events.focusIn, data, function(e) {
+				e.data.$dropdown.trigger(Events.raw.focusIn);
 			});
 		}
 	}
@@ -156,7 +157,8 @@
 		data.$options.off(Events.namespace);
 
 		data.$placeholder.remove();
-		data.$selected.remove();
+		data.$selected.fsTouch("destroy")
+			.remove();
 		data.$wrapper.remove();
 
 		data.$el.off(Events.namespace)
@@ -324,6 +326,12 @@
 				}
 			}
 		}
+
+		closeOthers(data);
+	}
+
+	function closeOthers(data) {
+		$(Classes.base).not(data.$dropdown).trigger(Events.close, [ data ]);
 	}
 
 	/**
@@ -343,7 +351,7 @@
 	function openOptions(data) {
 		// Make sure it's not already open
 		if (data.closed) {
-			$(Classes.base).not(data.$dropdown).trigger(Events.close, [ data ]);
+			// $(Classes.base).not(data.$dropdown).trigger(Events.close, [ data ]);
 
 			var offset = data.$dropdown.offset(),
 				bodyHeight = $Body.outerHeight(),
@@ -357,6 +365,8 @@
 
 			// Bind Events
 			$Body.on(Events.click + data.dotGuid, ":not(" + Classes.options + ")", data, closeOptionsHelper);
+
+			data.$dropdown.trigger(Events.focusIn);
 
 			data.$dropdown.addClass(RawClasses.open);
 			scrollOptions(data);
@@ -404,6 +414,8 @@
 
 		if (data && $(e.currentTarget).parents(Classes.base).length === 0) {
 			closeOptions(data);
+
+			data.$dropdown.trigger(Events.focusOut);
 		}
 	}
 
@@ -419,6 +431,8 @@
 
 		if (data) {
 			closeOptions(data);
+
+			data.$dropdown.trigger(Events.focusOut);
 		}
 	}
 
@@ -450,6 +464,8 @@
 				// Clean up
 				closeOptions(data);
 			}
+
+			data.$dropdown.trigger(Events.focusIn);
 		}
 	}
 
@@ -474,17 +490,22 @@
 
 	/**
 	 * @method private
-	 * @name onFocus
-	 * @description Handles instance focus.
+	 * @name onFocusIn
+	 * @description Handles instance focusIn.
 	 * @param e [object] "Event data"
 	 */
 
-	function onFocus(e) {
+	function onFocusIn(e) {
 		Functions.killEvent(e);
 
-		var data = e.data;
+		var $target = $(e.currentTarget),
+			data    = e.data;
 
-		if (!data.disabled && !data.multiple) {
+		if (!data.disabled && !data.multiple && !data.focused) {
+			closeOthers(data);
+
+			data.focused = true;
+
 			data.$dropdown.addClass(RawClasses.focus)
 						  .on(Events.keyDown + data.dotGuid, data, onKeypress);
 		}
@@ -492,22 +513,27 @@
 
 	/**
 	 * @method private
-	 * @name onBlur
-	 * @description Handles instance blur.
+	 * @name onFocusOut
+	 * @description Handles instance focusOut.
 	 * @param e [object] "Event data"
 	 */
 
-	function onBlur(e, internal) {
+	function onFocusOut(e, internal) {
 		Functions.killEvent(e);
 
-		var data = e.data;
+		var $target = $(e.currentTarget),
+			data    = e.data;
 
-		data.$dropdown.removeClass(RawClasses.focus)
-					  .off(Events.keyDown + data.dotGuid);
+		if (data.focused && data.closed) {
+			data.focused = false;
 
-		if (!data.multiple) {
-			// Clean up
-			closeOptions(data);
+			data.$dropdown.removeClass(RawClasses.focus)
+						  .off(Events.keyDown + data.dotGuid);
+
+			if (!data.multiple) {
+				// Clean up
+				closeOptions(data);
+			}
 		}
 	}
 
@@ -630,8 +656,9 @@
 	 */
 
 	function scrollOptions(data) {
-		var $selected = data.$items.eq(data.index),
-			selectedOffset = (data.index >= 0 && !$selected.hasClass(Classes.item_placeholder)) ? $selected.position() : { left: 0, top: 0 };
+		var $selected      = data.$items.eq(data.index),
+			selectedOffset = (data.index >= 0 && !$selected.hasClass(RawClasses.item_placeholder)) ? $selected.position() : { left: 0, top: 0 },
+			buffer         = (data.$wrapper.outerHeight() - $selected.outerHeight()) / 2;
 
 		/*
 		if ($.fn.scroller !== undefined) {
@@ -639,7 +666,7 @@
 							  .scroller("reset");
 		} else {
 		*/
-			data.$wrapper.scrollTop( data.$wrapper.scrollTop() + selectedOffset.top );
+			data.$wrapper.scrollTop( data.$wrapper.scrollTop() + selectedOffset.top - buffer );
 		// }
 	}
 
@@ -714,6 +741,7 @@
 	 * @name Dropdown
 	 * @description A jQuery plugin for custom select elements.
 	 * @type widget
+	 * @dependency jQuery
 	 * @dependency core.js
 	 * @dependency touch.js
 	 */
