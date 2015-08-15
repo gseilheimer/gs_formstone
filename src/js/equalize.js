@@ -44,7 +44,7 @@
 
 		cacheInstances();
 
-		$.mediaquery("bind", data.rawGuid, data.mq, {
+		$.fsMediaquery("bind", data.rawGuid, data.mq, {
 			enter: function() {
 				enable.call(data.$el, data);
 			},
@@ -64,10 +64,17 @@
 	function destruct(data) {
 		tearDown(data);
 
-		$.mediaquery("unbind", data.rawGuid);
+		$.fsMediaquery("unbind", data.rawGuid);
 
 		cacheInstances();
 	}
+
+	/**
+	 * @method
+	 * @name resize
+	 * @description Resizes instance
+	 * @example $(".target").equalize("resize");
+	 */
 
 	/**
 	 * @method private
@@ -162,6 +169,7 @@
 	 * @name Equalize
 	 * @description A jQuery plugin for equal dimensions.
 	 * @type widget
+	 * @dependency jQuery
 	 * @dependency core.js
 	 * @dependency mediaquery.js
 	 */
@@ -188,7 +196,9 @@
 			methods : {
 				_construct    : construct,
 				_destruct     : destruct,
-				_resize       : resize
+				_resize       : resize,
+
+				resize        : resizeInstance
 			}
 		}),
 

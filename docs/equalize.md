@@ -19,6 +19,7 @@ equalize.css
 #### Dependencies
 
 ```markup
+jQuery
 core.js
 mediaquery.js
 ```
@@ -124,6 +125,14 @@ Enables instance of plugin
 
 ```javascript
 $(".target").equalize("enable");
+```
+
+### resize
+
+Resizes instance
+
+```javascript
+$(".target").equalize("resize");
 ```
 
 ## CSS

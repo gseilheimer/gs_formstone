@@ -18,9 +18,11 @@
 		data.target     = this.data(Namespace + "-target");
 		data.$target    = $(data.target).addClass(data.classes.raw.target);
 
-		data.linked     = this.data(Namespace + "-linked");
-
 		data.mq         = "(max-width:" + (data.maxWidth === Infinity ? "100000px" : data.maxWidth) + ")";
+
+		// live query for linked to avoid missing new elements
+		var linked      = this.data(Namespace + "-linked");
+		data.linked     = linked ? '[data-' + Namespace + '-linked="' + linked + '"]' : false;
 
 		// live query for the group to avoid missing new elements
 		var group       = this.data(Namespace + "-group");
@@ -35,18 +37,18 @@
 
 		data.$swaps = $().add(this).add(data.$target);
 
-		this.touch({
+		this.fsTouch({
 				tap: true
 			})
 			.on(Events.tap + data.dotGuid, data, onClick);
 
 		// Media Query support
-		$.mediaquery("bind", data.rawGuid, data.mq, {
+		$.fsMediaquery("bind", data.rawGuid, data.mq, {
 			enter: function() {
-				enable.call(data.$el, data);
+				enable.call(data.$el, data, true);
 			},
 			leave: function() {
-				disable.call(data.$el, data);
+				disable.call(data.$el, data, true);
 			}
 		});
 	}
@@ -59,12 +61,12 @@
 	 */
 
 	function destruct(data) {
-		$.mediaquery("unbind", data.rawGuid);
+		$.fsMediaquery("unbind", data.rawGuid);
 
 		data.$swaps.removeClass( [data.classes.raw.enabled, data.classes.raw.active].join(" ") )
 				   .off(Events.namespace);
 
-		this.touch("destroy");
+		this.fsTouch("destroy");
 	}
 
 	/**
@@ -76,11 +78,13 @@
 
 	function activate(data, fromLinked) {
 		if (data.enabled && !data.active) {
-			// Deactivates grouped instances
-			$(data.group).not(data.$el)[Plugin.namespace]("deactivate");
+			if (data.group && !fromLinked) {
+				// Deactivates grouped instances
+				$(data.group).not(data.$el).not(data.linked)[Plugin.namespaceClean]("deactivate");
+			}
 
 			// index in group
-			var index    = (data.group) ? $(data.group).index(data.$el) : null;
+			var index = (data.group) ? $(data.group).index(data.$el) : null;
 
 			data.$swaps.addClass(data.classes.raw.active);
 
@@ -198,6 +202,7 @@
 	 * @name Swap
 	 * @description A jQuery plugin for toggling states.
 	 * @type widget
+	 * @dependency jQuery
 	 * @dependency core.js
 	 * @dependency mediaquery.js
 	 * @dependency touch.js

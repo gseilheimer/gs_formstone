@@ -28,6 +28,17 @@
 			$html   = $("html");
 			$body   = $("body");
 
+			$.mediaquery({
+				minWidth     : [ 320, 500, 740, 980, 1220 ],
+				maxWidth     : [ 1220, 980, 740, 500, 320 ],
+				minHeight    : [ 400, 800 ],
+				maxHeight    : [ 800, 400 ]
+			});
+
+			$.analytics({
+				scrollDepth: true
+			});
+
 			$("[class*=lang-]").each(function() {
 				$(this).addClass( $(this).attr("class").replace("lang-", "language-") );
 			});
@@ -40,7 +51,11 @@
 				Prism.highlightAll();
 			}
 
-			$(".js-navigation").navigation();
+			$(".js-navigation").navigation().on("open.navigation", function() {
+				$.analytics("MainNav", "Open");
+			}).on("close.navigation", function() {
+				$.analytics("MainNav", "Close");
+			});
 
 			$(".intro ul").navigation();
 
