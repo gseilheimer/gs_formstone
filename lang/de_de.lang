@@ -1,0 +1,68 @@
+﻿# addon:formstone de_de | de_de_utf8
+
+gs_formstone_name = Fancybox2
+
+gs_formstone_subpage_index = Startseite
+
+gs_formstone_subpage_index_txt_01 = FancyBox 2.1.x
+gs_formstone_subpage_index_txt_01_01 = - In Lies mich finden Sie Details zum PlugIn
+gs_formstone_subpage_index_txt_01_02 = - In Module finden Sie Details zu den REX-Modulen
+
+gs_formstone_subpage_readme = Lies mich
+
+gs_formstone_subpage_readme_txt_01 = Fancybox - eingebundene Dateien
+gs_formstone_subpage_readme_txt_01_01 = Enthält alle wichtigen Komponenten in den aktuellen Versionen:
+gs_formstone_subpage_readme_txt_01_02 = - jquery.fancybox.css
+gs_formstone_subpage_readme_txt_01_03 = - jquery.fancybox.js
+gs_formstone_subpage_readme_txt_01_04 = - jquery.fancybox.pack.js
+gs_formstone_subpage_readme_txt_01_05 = - jquery.mousewheel.pack.js
+gs_formstone_subpage_readme_txt_01_06 = - jquery.easyslider.css // SLIDER
+gs_formstone_subpage_readme_txt_01_07 = - jquery.easyslider.js  // SLIDER
+gs_formstone_subpage_readme_txt_01_08 = - jquery.fancybox-buttons.css // OPTIONAL - Buttons
+gs_formstone_subpage_readme_txt_01_09 = - jquery.fancybox-buttons.js  // OPTIONAL - Buttons
+gs_formstone_subpage_readme_txt_01_10 = - jquery.fancybox-media.js // OPTIONAL - Media
+gs_formstone_subpage_readme_txt_01_11 = - jquery.fancybox-thumb.css // OPTIONAL - Thumbs
+gs_formstone_subpage_readme_txt_01_12 = - jquery.fancybox-thumb.js  // OPTIONAL - Thumbs
+gs_formstone_subpage_readme_txt_01_13 = Alle Dateien sind in .\files\addons\gs_formstone\
+
+gs_formstone_subpage_readme_txt_02 = Fancybox - hinterlegte JS-Funktionen
+gs_formstone_subpage_readme_txt_02_01 = $("a.fancyboxStyleDefault").fancybox({...}); // Single Image
+gs_formstone_subpage_readme_txt_02_02 = $("a.fancyboxStyleSpecial").fancybox({...}); // Single Image
+gs_formstone_subpage_readme_txt_02_03 = $("a.fancyboxStyleGalerieSpecial-1").fancybox({...}); // Image Galery
+gs_formstone_subpage_readme_txt_02_04 = $("a.fancyboxStyleGalerieSpecial-2").fancybox({...}); // Image Galery
+gs_formstone_subpage_readme_txt_02_05 = $("a.fancyboxStyleInlineDefault").fancybox({...}); // Inline Content
+gs_formstone_subpage_readme_txt_02_06 = $("a.fancyboxStyleInlineSpecial").fancybox({...}); // Inline Content
+gs_formstone_subpage_readme_txt_02_07 = Alle Script-Angaben stehen NUR im HEADER und sind im TEMPALTE z.B. mit der ID=620 zu finden.
+gs_formstone_subpage_readme_txt_02_08 = WEITERE HINWEISE ENTNEHMEN SIE BITTE DEM INSTALLATIONSTEIL...
+
+gs_formstone_subpage_readme_txt_03 = Hinweise: Konfiguration anpassen
+gs_formstone_subpage_readme_txt_03_01 = Ändern Sie bitte einfach nur die Effekte im Image-Manager, damit Ihnen weitere Systemanpassungen erspart bleiben...
+gs_formstone_subpage_readme_txt_03_02 = Sollten Sie die Konfiguration dennoch ändern wollen, nachfolgend die notwendigen Schritte:
+gs_formstone_subpage_readme_txt_03_03 = a) Ändern der "Bildtypen bearbeiten" und der zugehörigen "Effekte bearbeiten"
+gs_formstone_subpage_readme_txt_03_04 = b) Alle Anpassungen und Namensänderungen müssen im Modul berücksichtigt werden!
+
+gs_formstone_subpage_readme_txt_04 = Hinweise: Löschen der Bildtypen
+gs_formstone_subpage_readme_txt_04_01 = Das Löschen der Bildtypen ist nur möglich, wenn das Fancybox-Addon deinstalliert wird, da diese Bildtypen und die Effekte mit der Installation = eingebunden werden.
+
+gs_formstone_subpage_readme_txt_05 = Hinweise: Installation/Einbindung des REX_TEMPLATE[]
+gs_formstone_subpage_readme_txt_05_01 = Für die korrekte Nutzung des Addons ist es notwendig das TEMPLATE mit der ID=[] in das Standard-Template für den Artikel einzubinden.
+gs_formstone_subpage_readme_txt_05_02 = REX_TEMPLATE[2] per Copy'n'Paste in das Standard-Template vor dem HEAD-End-Tag einbinden:
+gs_formstone_subpage_readme_txt_05_03 = ...
+gs_formstone_subpage_readme_txt_05_04 = REX_TEMPLATE[2]
+gs_formstone_subpage_readme_txt_05_05 = <\head>
+
+gs_formstone_subpage_setup = Konfiguration
+
+gs_formstone_subpage_modul_image = Module (Bild)
+
+gs_formstone_subpage_modul_image_txt_01 = Eingabe/Ausgabe (Bild-Beispiel)
+gs_formstone_subpage_modul_image_txt_01_01 = Das aktuelle Beispiel-Modul für dieses Addon finden Sie unter der nachfolgenden Adresse:
+gs_formstone_subpage_modul_image_txt_01_02 = http://www.redaxo.org/de/download/module/?modul_id=623
+
+gs_formstone_subpage_modul_galery = Module (Galerie)
+
+gs_formstone_subpage_modul_galery_txt_01 = Eingabe/Ausgabe (Galerie-Beispiel)
+gs_formstone_subpage_modul_galery_txt_01_01 = Das aktuelle Beispiel-Modul für dieses Addon finden Sie unter der nachfolgenden Adresse:
+gs_formstone_subpage_modul_galery_txt_01_02 = http://www.redaxo.org/de/download/module/?modul_id=624
+
+

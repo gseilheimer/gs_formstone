@@ -1,9 +1,11 @@
-<a href="http://gruntjs.com" target="_blank"><img src="https://cdn.gruntjs.com/builtwith.png" alt="Built with Grunt"></a> 
-<a href="http://badge.fury.io/bo/formstone"><img src="https://badge.fury.io/bo/formstone.svg" alt="Bower version"></a> 
-<a href="https://travis-ci.org/Formstone/Formstone"><img src="https://travis-ci.org/Formstone/Formstone.svg?branch=master" alt="Travis CI"></a> 
+Formstone for REDAXO Version 4.6
+==========
 
-# formstone 
+AddOn to insert resizeable images with textile markitup editor (gs_markitup) for REDAXO CMS Version 4.6
 
-Library of modular front end components. 
-
-[Documentation](docs/README.md)
+Installation
+-------
+* Download and unzip
+* Rename the unzipped folder from redaxo_xyz to gs_formstone
+* Move the folder to your REDAXO 4 System /redaxo/include/addons/
+* Install and activate the addon gs_formstone in the REDAXO 4 backend
